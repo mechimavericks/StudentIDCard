@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 10px;
+        background-color: #f4f4f4;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .card {
+        width: 350px;
+        height: 600px;
+        margin-top: 20px;
+        background: url("./background.png") no-repeat center center/cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        color: rgb(19, 18, 18);
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .profile-photo img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #008080;
+        margin-top: 10px;
+    }
+
+    .name {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .designation{
+        font-weight: 600;
+        font-size: 20px;
+    }
+
+
+    .details {
+        width: 90%;
+        font-size: 14px;
+        text-align: left;
+    }
+
+    .details td {
+        padding: 5px 0;
+    }
+
+    div.qrcode img {
+        display: block;
+        height: 200px;
+    }
+    div.info div{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    div.info div p{
+        font-size: 20px;
+        font-weight: bold;
+    }
+    div.info div img{
+        height: 30px;
+    }
+</style>
+
+<body>
+    <div class="card" id="card">
+        <div class="card-content">
+            <div class="profile-photo" id="profilePhotoContainer">
+                <img id="profileImage" src="profile.jpg" alt="Profile Picture" />
+            </div>
+
+            <span class="name" id="cardName">Bishal Magar</span>
+            <span class="designation">BCA</span>
+
+            <table class="details">
+                <tr>
+                    <td><strong>Address : Kanakai-07 </strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Email : santoshvandari@gmail.com</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Roll No : 9824988945</strong></td>
+                </tr>
+            </table>
+            <div class="qrcode">
+                <img src="qr.png">
+            </div>
+            <div class="info">
+                <div>
+                    <p>Mechi Mavericks</p> 
+                    <img src="./mechimavericks.png">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
