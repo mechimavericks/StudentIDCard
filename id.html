@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card</title>
+    <link rel="stylesheet" href="id.css">
+</head>
+
+<body>
+
+    <div class="card">
+        
+        <div class="card-content">
+            <div class="profile-photo" id="profilePhotoContainer">
+                <img id="profileImage" src="profile.jpg" alt="Profile Picture" onclick="changeProfilePhoto()">
+            </div>
+
+            
+            <span class="name" id="cardName" contenteditable="true">Bishal Magar</span>
+            <span class="designation" contenteditable="true">Manager</span>
+
+            
+            <table class="details">
+                <tr>
+                    <td><strong>ID No</strong></td>
+                    <td>: <span contenteditable="true">12345</span></td>
+                </tr>
+                <tr>
+                    <td><strong>DOB</strong></td>
+                    <td>: <span contenteditable="true">01/01/2001</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Email</strong></td>
+                    <td>: <span contenteditable="true">bishalmagar@yahoo.com</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Phone</strong></td>
+                    <td>: <span contenteditable="true">9876543210</span></td>
+                </tr>
+            </table>
+
+            
+            <div class="qrcode" id="QRCode">
+                <img id="qrcodeImg" src="qr.png" alt="Qr Code"
+                    style="display:block; margin-top: 10px; width: 100%; max-width: 200px; height:100px;">
+            </div>
+        </div>
+    </div>
+
+    
+    <button id="downloadBtn" onclick="downloadIDCard()">Download ID</button>
+
+    
+    <input type="file" id="profilePicInput" style="display: none;" accept="image/*"
+        onchange="previewProfilePhoto(event)">
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="id.js"></script>
+
+</body>
+
+</html>
