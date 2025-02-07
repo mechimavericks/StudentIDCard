@@ -55,15 +55,27 @@
         border: 5px solid #008080;
         margin-top: 10px;
     }
+    div.info-container {
+        display: flex;
+        align-content: center;
+        flex-direction: column;
+        justify-content: center;
+        color: #008080;
+    }
 
     .name {
         font-size: 24px;
         font-weight: bold;
         margin-top: 10px;
+        color: #333333;
     }
     .designation{
         font-weight: 600;
         font-size: 20px;
+    }
+    .event{
+        font-weight: bold;
+        font-size: 22px;
     }
 
 
@@ -79,7 +91,7 @@
 
     div.qrcode img {
         display: block;
-        height: 200px;
+        height: 175px;
     }
     div.info div{
         display: flex;
@@ -102,9 +114,11 @@
             <div class="profile-photo" id="profilePhotoContainer">
                 <img id="profileImage" src="profile.jpg" alt="Profile Picture" />
             </div>
-
-            <span class="name" id="cardName">Bishal Magar</span>
-            <span class="designation">BCA</span>
+            <div class="info-container">
+                <span class="name" id="cardName">Bishal Magar</span>
+                <span class="designation">BCA</span>
+                <span class="event">Roadmap 2.0</span>
+            </div>
 
             <table class="details">
                 <tr>
@@ -114,7 +128,7 @@
                     <td><strong>Email : santoshvandari@gmail.com</strong></td>
                 </tr>
                 <tr>
-                    <td><strong>Roll No : 9824988945</strong></td>
+                    <td><strong>Roll No : 58</strong></td>
                 </tr>
             </table>
             <div class="qrcode">
