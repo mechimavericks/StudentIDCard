@@ -163,6 +163,9 @@
               preloader = document.getElementById('preloader');
               
         const id = new URLSearchParams(window.location.search).get('id');
+        if (!id) {
+            window.location.href = "404.html";
+        }
         
         // Fetch and render data using async/await for better readability
         async function loadData() {
