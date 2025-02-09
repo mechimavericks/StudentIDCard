@@ -4,143 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ID Card</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            font-family: 'Roboto', sans-serif;
+        }
+        .card {
+            width: 350px;
+            height: 600px;
+            background: url("./background.png") no-repeat center center/cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: #131212;
+        }
+        .card-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-photo img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #008080;
+            margin-top: 10px;
+        }
+        .info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #008080;
+        }
+        .name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #333;
+        }
+        .event {
+            font-weight: 600;
+            font-size: 22px;
+        }
+        .details {
+            width: 90%;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .details td {
+            padding: 5px 0;
+            font-size: 18px;
+        }
+        .qrcode img {
+            display: block;
+            height: 175px;
+            margin: 10px auto;
+        }
+        .info div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .info p {
+            font-size: 20px;
+            font-weight: bold;
+            color: #008080;
+        }
+        .info img {
+            height: 50px;
+        }
+        .download-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #008080;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 9999;
+        }
+    </style>
 </head>
-<style>
-    *{
-        margin: 0;
-        padding: 0;
-    }
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 10px;
-        background-color: #f4f4f4;
-        font-family: 'Roboto', sans-serif;
-    }
-
-    .card {
-        width: 350px;
-        height: 600px;
-        margin-top: 20px;
-        background: url("./background.png") no-repeat center center/cover;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        position: relative;
-        text-align: center;
-        font-family: Arial, sans-serif;
-        color: rgb(19, 18, 18);
-    }
-
-    .card-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-    }
-
-    .profile-photo img {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 5px solid #008080;
-        margin-top: 10px;
-    }
-    div.info-container {
-        display: flex;
-        align-content: center;
-        flex-direction: column;
-        justify-content: center;
-        color: #008080;
-    }
-
-    .name {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 10px;
-        color: #333333;
-    }
-    .event{
-        font-weight: 600;
-        font-size: 22px;
-    }
-   
-
-
-    .details {
-        width: 90%;
-        font-size: 14px;
-        text-align: left;
-        margin-top: 10px;
-    }
-
-    .details td {
-        padding: 5px 0;
-        font-size: 18px;
-    }
-
-    div.qrcode img {
-        display: block;
-        height: 175px;
-    }
-    div.info div{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    div.info div p{
-        font-size: 20px;
-        font-weight: bold;
-        color: #008080;
-    }
-    div.info div img{
-        height: 50px;
-    }
-</style>
-
 <body>
+    <!-- Preloader -->
+    <div id="preloader">Loading...</div>
+    
     <div class="card" id="card">
         <div class="card-content">
-            <div class="profile-photo" id="profilePhotoContainer">
-                <img id="profileImage" src="./photo.jpg" alt="Profile Picture" />
+            <div class="profile-photo">
+                <img id="profileImage" 
+                     src="./photo.jpg" 
+                     alt="Profile Picture" 
+                     crossOrigin="anonymous"
+                     onerror="this.onerror=null; this.src='default.png';" />
             </div>
             <div class="info-container">
-                <span class="name" id="cardName">Santosh Bhandari</span>
+                <span class="name" id="cardName">Fetching...</span>
                 <span class="event">BCA Roadmap 2.0</span>
             </div>
-
             <table class="details">
                 <tr>
-                    <td><strong>Address : Kanakai-07 </strong></td>
+                    <td><strong id="address">Address: Fetching...</strong></td>
                 </tr>
-                <!-- <tr>
-                    <td><strong>Email : santoshvandari@gmail.com</strong></td>
-                </tr> -->
                 <tr>
-                    <td><strong>Roll No : 58</strong></td>
+                    <td><strong id="rollno">Roll No: Fetching...</strong></td>
                 </tr>
             </table>
             <div class="qrcode">
-                <img src="qr.png">
+                <img id="qrcode" src="" alt="QR Code" crossOrigin="anonymous" />
             </div>
             <div class="info">
                 <div>
-                    <p>Mechi Mavericks</p> 
-                    <img src="./mechimavericks.png">
+                    <p>Mechi Mavericks</p>
+                    <img src="./mechimavericks.png" alt="Logo" crossOrigin="anonymous" />
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        // Elements
+        const profile = document.getElementById('profileImage'),
+              nameEl = document.getElementById('cardName'),
+              addressEl = document.getElementById('address'),
+              rollnoEl = document.getElementById('rollno'),
+              qrcodeEl = document.getElementById('qrcode'),
+              preloader = document.getElementById('preloader');
+              
+        const id = new URLSearchParams(window.location.search).get('id');
+        
+        // Fetch and render data using async/await for better readability
+        async function loadData() {
+            try {
+                const response = await fetch("https://qrcodescanner-b98i.onrender.com/get-data/" + id);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                profile.src = data.imageUrl || data.imageurl;
+                nameEl.textContent = data.fullName || data.fullname;
+                addressEl.textContent = "Address: " + data.address;
+                rollnoEl.textContent = "Roll No: " + data.rollno;
+                const qrData = {
+                    name: data.name,
+                    email: data.email,
+                    rollno: data.rollno
+                };
+                qrcodeEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" 
+                    + encodeURIComponent(JSON.stringify(qrData));
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                preloader.style.display = 'none';
+            }
+        }
+        
+        loadData();
+    </script>
 </body>
-
 </html>
