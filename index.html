@@ -185,10 +185,11 @@
                 addressEl.textContent = "Address: " + data.address;
                 rollnoEl.textContent = "Roll No: " + data.rollno;
                 const qrData = {
-                    name: data.name,
+                    name: data.fullname,
                     email: data.email,
                     rollno: data.rollno
                 };
+                console.log(qrData)
                 qrcodeEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" 
                     + encodeURIComponent(JSON.stringify(qrData));
             } catch (error) {
