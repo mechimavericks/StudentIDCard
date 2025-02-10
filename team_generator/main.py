@@ -1,7 +1,10 @@
+import base64
 import streamlit as st
 import pandas as pd
 import random
 import json
+import os
+from PIL import Image
 from datetime import datetime
 
 # Set page config
@@ -21,6 +24,9 @@ st.markdown("""
     margin: 10px 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 .team-card:hover {
     transform: translateY(-2px);
@@ -62,14 +68,31 @@ st.markdown("""
     margin: 10px 0;
     border-left: 5px solid #FF9933;
 }
+
+/* New styles */
+.profile-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    float: right;
+    margin-left: 15px;
+    border: 3px solid #FF9933;
+    flex-shrink: 0;
+}
+
+.student-details {
+    flex-grow: 1;
+    padding-left: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # Load data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data.csv')
-    return df[['Full Name', 'Roll No', 'Email Address']]
+    df = pd.read_csv('studentdata.csv')
+    return df[['fullname', 'rollno', 'email']]
 
 # Initialize session state
 if 'teams' not in st.session_state:
@@ -84,7 +107,8 @@ def generate_team():
         team = random.sample(st.session_state.remaining_students, 5)
         for student in team:
             st.session_state.remaining_students.remove(student)
-        st.session_state.teams.append({
+        # Insert new team at the beginning of the list
+        st.session_state.teams.insert(0, {
             'team_number': st.session_state.team_counter,
             'members': team,
             'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -92,6 +116,15 @@ def generate_team():
         st.session_state.team_counter += 1
         return True
     return False
+
+# Add this function near the top of your file
+def get_image_path(rollno):
+    image_path = f"images/{rollno}.jpg"
+    default_image_path = "images/default.png"
+    
+    if os.path.exists(image_path):
+        return image_path
+    return default_image_path
 
 # Main app
 st.title("🎲 Random Team Generator")
@@ -112,15 +145,26 @@ with col1:
         with st.expander(f"Team {team['team_number']} | Generated at {team['timestamp']}", expanded=True):
             st.markdown(f"""<div class="team-header">Team {team['team_number']}</div>""", unsafe_allow_html=True)
             for member in team['members']:
-                st.markdown(f"""
-                <div class="team-card">
-                    <div class="student-name">📌 {member['Full Name']}</div>
-                    <div class="student-info">
-                        🎯 Roll No: {member['Roll No']}<br>
-                        📧 {member['Email Address']}
+                image_path = get_image_path(member['rollno'])
+                try:
+                    image = Image.open(image_path)
+                    st.markdown(f"""
+                    <div class="team-card">
+                        <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 50%; border: 3px solid #FF9933;">
+                            <img src="data:image/jpg;base64,{base64.b64encode(open(image_path, 'rb').read()).decode()}" 
+                                 class="profile-image" alt="Profile photo">
+                        </div>
+                        <div class="student-details">
+                            <div class="student-name">📌 {member['fullname']}</div>
+                            <div class="student-info">
+                                🎯 Roll No: {member['rollno']}<br>
+                                📧 {member['email']}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Error loading image for roll no {member['rollno']}: {str(e)}")
 
 # Modified statistics section
 with col2:
@@ -155,7 +199,7 @@ with col3:
             st.markdown(f"""
             <div class="team-summary">
                 <h4>Team {i}</h4>
-                {"<br>".join([f"• {member['Full Name']} (Roll: {member['Roll No']})" for member in team_members[0]['members']])}
+                {"<br>".join([f"• {member['fullname']} (Roll: {member['rollno']})" for member in team_members[0]['members']])}
             </div>
             """, unsafe_allow_html=True)
 
@@ -166,7 +210,7 @@ with col4:
             st.markdown(f"""
             <div class="team-summary">
                 <h4>Team {i}</h4>
-                {"<br>".join([f"• {member['Full Name']} (Roll: {member['Roll No']})" for member in team_members[0]['members']])}
+                {"<br>".join([f"• {member['fullname']} (Roll: {member['rollno']})" for member in team_members[0]['members']])}
             </div>
             """, unsafe_allow_html=True)
 
@@ -177,7 +221,7 @@ if st.session_state.remaining_students:
         for student in st.session_state.remaining_students:
             st.markdown(f"""
             <div class="team-card">
-                <div class="student-name">{student['Full Name']}</div>
-                <div class="student-info">Roll No: {student['Roll No']}</div>
+                <div class="student-name">{student['fullname']}</div>
+                <div class="student-info">Roll No: {student['rollno']}</div>
             </div>
             """, unsafe_allow_html=True)
