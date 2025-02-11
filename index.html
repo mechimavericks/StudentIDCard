@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ID Card</title>
     <style>
-        * { margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -14,12 +19,13 @@
             background-color: #f4f4f4;
             font-family: 'Roboto', sans-serif;
         }
+
         .card {
             width: 350px;
             height: 600px;
             background: url("./background.png") no-repeat center center/cover;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,6 +35,7 @@
             font-family: Arial, sans-serif;
             color: #131212;
         }
+
         .card-content {
             width: 100%;
             height: 100%;
@@ -37,6 +44,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .profile-photo img {
             width: 150px;
             height: 150px;
@@ -45,6 +53,7 @@
             border: 5px solid #008080;
             margin-top: 10px;
         }
+
         .info-container {
             display: flex;
             flex-direction: column;
@@ -52,45 +61,54 @@
             align-items: center;
             color: #008080;
         }
+
         .name {
             font-size: 24px;
             font-weight: bold;
             margin-top: 10px;
             color: #333;
         }
+
         .event {
             font-weight: 600;
             font-size: 22px;
         }
+
         .details {
             width: 90%;
             font-size: 14px;
             text-align: left;
             margin-top: 10px;
         }
+
         .details td {
             padding: 5px 0;
             font-size: 18px;
         }
+
         .qrcode img {
             display: block;
             height: 175px;
             margin: 10px auto;
         }
+
         .info div {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
+
         .info p {
             font-size: 20px;
             font-weight: bold;
             color: #008080;
         }
+
         .info img {
             height: 50px;
         }
+
         .download-button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -101,6 +119,7 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         /* Preloader Styles */
         #preloader {
             position: fixed;
@@ -108,27 +127,83 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255,255,255,0.8);
+            background-color: #008080;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
             z-index: 9999;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #333333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        .loader-text {
+            color: #008080;
+            font-size: 20px;
+            font-weight: 500;
+            animation: fadeInOut 1.5s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.2) rotate(180deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Preloader -->
-    <div id="preloader">Loading...</div>
-    
+    <div id="preloader">
+        <div class="loader"></div>
+        <div class="loader-text">Loading...</div>
+    </div>
+
     <div class="card" id="card">
         <div class="card-content">
             <div class="profile-photo">
-                <img id="profileImage" 
-                     src="./photo.jpg" 
-                     alt="Profile Picture" 
-                     crossOrigin="anonymous"
-                     onerror="this.onerror=null; this.src='default.png';" />
+                <img id="profileImage" src="./photo.jpg" alt="Profile Picture" crossOrigin="anonymous"
+                    onerror="this.onerror=null; this.src='default.png';" />
             </div>
             <div class="info-container">
                 <span class="name" id="cardName">Fetching...</span>
@@ -156,17 +231,17 @@
     <script>
         // Elements
         const profile = document.getElementById('profileImage'),
-              nameEl = document.getElementById('cardName'),
-              addressEl = document.getElementById('address'),
-              rollnoEl = document.getElementById('rollno'),
-              qrcodeEl = document.getElementById('qrcode'),
-              preloader = document.getElementById('preloader');
-              
+            nameEl = document.getElementById('cardName'),
+            addressEl = document.getElementById('address'),
+            rollnoEl = document.getElementById('rollno'),
+            qrcodeEl = document.getElementById('qrcode'),
+            preloader = document.getElementById('preloader');
+
         const id = new URLSearchParams(window.location.search).get('id');
         if (!id) {
             window.location.href = "404.html";
         }
-        
+
         // Fetch and render data using async/await for better readability
         async function loadData() {
             try {
@@ -189,7 +264,7 @@
                     email: data.email,
                     rollno: data.rollno
                 };
-                qrcodeEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" 
+                qrcodeEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="
                     + encodeURIComponent(JSON.stringify(qrData));
             } catch (error) {
                 console.error("Error fetching data:", error);
