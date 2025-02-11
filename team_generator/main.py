@@ -6,6 +6,8 @@ import json
 import os
 from PIL import Image
 from datetime import datetime
+import time
+
 
 # Set page config
 st.set_page_config(
@@ -14,77 +16,186 @@ st.set_page_config(
     layout="wide"
 )
 
-# Enhanced Custom CSS
+# Updated Custom CSS
 st.markdown("""
 <style>
-.team-card {
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #f0f2f6;
-    margin: 10px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.team-card:hover {
-    transform: translateY(-2px);
-}
-.student-name {
-    color: #FF9933;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-.student-info {
-    color: #666;
-    font-size: 14px;
-}
-.team-header {
-    background-color: #1E88E5;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-.statistics-card {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-}
-.big-button {
-    padding: 20px;
-    font-size: 24px;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 10px;
-}
-.team-summary {
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 8px;
-    margin: 10px 0;
-    border-left: 5px solid #FF9933;
+/* Global Styles */
+body {
+    background-color: #008080;
+    color: #f5f5f5;
 }
 
-/* New styles */
+.stApp {
+    background: linear-gradient(135deg, #008080, #006666);
+}
+
+/* Card Styles */
+.team-card {
+    padding: 25px;
+    border-radius: 15px;
+    background: rgba(51, 51, 51, 0.9);
+    margin: 15px 0;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: popUpAndStay 2s ease-out forwards;
+    opacity: 0;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.student-name {
+    color: #f5f5f5;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.student-info {
+    color: #cccccc;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.team-header {
+    background: linear-gradient(90deg, #008080, #006666);
+    color: #f5f5f5;
+    padding: 15px 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    animation: slideInFromTop 1s ease-out forwards;
+}
+
+.statistics-card {
+    background: rgba(51, 51, 51, 0.9);
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: #f5f5f5;
+}
+
+/* Button Styles */
+.stButton > button {
+    background: linear-gradient(135deg, #008080, #006666);
+    color: #f5f5f5;
+    padding: 15px 30px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    font-weight: bold;
+    width: 100%;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #006666, #008080);
+}
+
+/* Team Summary Styles */
+.team-summary {
+    padding: 20px;
+    background: rgba(51, 51, 51, 0.9);
+    border-radius: 15px;
+    margin: 15px 0;
+    border-left: 5px solid #008080;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: #f5f5f5;
+}
+
+.team-summary h4 {
+    color: #008080;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+/* Profile Image Styles */
 .profile-image {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    float: right;
-    margin-left: 15px;
-    border: 3px solid #FF9933;
-    flex-shrink: 0;
+    border: 4px solid #008080;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .student-details {
     flex-grow: 1;
-    padding-left: 10px;
+    padding-left: 15px;
 }
+
+/* Header Styles */
+h1, h2, h3 {
+    color: #f5f5f5;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Expander Styles */
+.streamlit-expanderHeader {
+    background: rgba(51, 51, 51, 0.9) !important;
+    border-radius: 10px !important;
+    color: #f5f5f5 !important;
+    padding: 10px 20px !important;
+}
+
+/* Divider Style */
+hr {
+    border-color: rgba(245, 245, 245, 0.2);
+    margin: 30px 0;
+}
+
+@keyframes popUpAndStay {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    20% {
+        transform: scale(1.2);
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.delay-1 { animation-delay: 0s; }
+.delay-2 { animation-delay: 2s; }
+.delay-3 { animation-delay: 4s; }
+.delay-4 { animation-delay: 6s; }
+.delay-5 { animation-delay: 8s; }
+
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -127,8 +238,16 @@ def get_image_path(rollno):
     return default_image_path
 
 # Main app
-st.title("🎲 Random Team Generator")
-st.subheader("BCA First Semester - Roadmap 2.0")
+st.markdown("""
+<div style='text-align: center; padding: 40px 0;'>
+    <h1 style='color: #f5f5f5; font-size: 3em; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);'>
+        🎲 Random Team Generator
+    </h1>
+    <h3 style='color: #cccccc; font-weight: normal; margin-bottom: 30px;'>
+        BCA First Semester - Roadmap 2.0
+    </h3>
+</div>
+""", unsafe_allow_html=True)
 
 col1, col2 = st.columns([2, 1])
 
