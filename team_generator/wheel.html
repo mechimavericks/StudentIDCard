@@ -1,0 +1,26 @@
+def create_wheel_html(students, spinning=False):
+n = len(students) # Number of students in the current team
+angle_step = 360 / max(n, 1) # Avoid division by zero
+wheel_items = ""
+
+for i, student in enumerate(students):
+angle = i * angle_step # Angle for positioning
+img_b64 = get_image_base64(student['rollno'])
+img_src = f"data:image/jpeg;base64,{img_b64}" if img_b64 else "images/default.png"
+
+wheel_items += f'''
+<div class="wheel-item" style="transform: rotate({angle}deg) translate(250px) rotate(-{angle}deg);">
+    <img src="{img_src}" class="profile-image" onerror="this.src='images/default.png'" alt="{student['fullname']}">
+    <div class="student-info">
+        <div class="student-name">{student['fullname']}</div>
+        <div class="student-roll">Roll: {student['rollno']}</div>
+    </div>
+</div>
+'''
+
+spin_class = "spinning" if spinning else ""
+return f'''
+<div class="wheel-container">
+    <div class="wheel {spin_class}">{wheel_items}</div>
+</div>
+'''

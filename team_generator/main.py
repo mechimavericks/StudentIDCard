@@ -1,345 +1,221 @@
-import base64
 import streamlit as st
 import pandas as pd
 import random
-import json
+import base64
 import os
-from PIL import Image
-from datetime import datetime
 import time
 
-# Set page config
-st.set_page_config(
-    page_title="Team Generator",
-    page_icon="🎲",
-    layout="wide"
-)
+# Set Streamlit page config
+st.set_page_config(page_title="Team Generator", page_icon="🎲", layout="wide")
 
-# Updated Custom CSS
+# Load student data
+@st.cache_data
+def load_data():
+    try:
+        df = pd.read_csv('studentdata.csv')
+        return df[['fullname', 'rollno', 'email']]
+    except FileNotFoundError:
+        st.error("studentdata.csv not found!")
+        return pd.DataFrame(columns=['fullname', 'rollno', 'email'])
+
+# Get student profile image
+def get_image_base64(rollno):
+    """
+    Tries to load a student's profile image and convert it to base64.
+    Falls back to default.png if the student's image is missing.
+    """
+    try:
+        image_path = f"images/{rollno}.jpg"
+        default_image_path = "images/default.png"
+        
+        if not os.path.exists(image_path):
+            if not os.path.exists(default_image_path):
+                return ""  # Return empty if no image found
+            image_path = default_image_path
+            
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except Exception as e:
+        st.warning(f"Error loading image for roll no {rollno}: {str(e)}")
+        return ""
+
+# Initialize session state
+if 'remaining_students' not in st.session_state:
+    st.session_state.remaining_students = load_data().to_dict('records')
+if 'teams' not in st.session_state:
+    st.session_state.teams = []
+if 'team_counter' not in st.session_state:
+    st.session_state.team_counter = 1
+if 'animation_complete' not in st.session_state:
+    st.session_state.animation_complete = False
+
+# CSS for wheel styling
 st.markdown("""
 <style>
-/* Global Styles */
-body {
-    background-color: #008080;
-    color: #f5f5f5;
+.wheel-container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: rgba(0, 128, 128, 0.1);
+    border: 3px solid #008080;
+    overflow: hidden;
 }
 
-.stApp {
-    background: linear-gradient(135deg, #008080, #006666);
+.wheel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transform: rotate(0deg);
+    transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* Card Styles */
-.team-card {
-    padding: 25px;
-    border-radius: 15px;
-    background: rgba(51, 51, 51, 0.9);
-    margin: 15px 0;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+.wheel-item {
+    position: absolute;
+    width: 120px;
+    height: auto;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 20px;
-    animation: popUpAndStay 2s ease-out forwards;
-    opacity: 0;
+    justify-content: center;
+    text-align: center;
+    transform-origin: 50% 300px;
+    background: transparent;
+    padding: 5px;
 }
 
-.team-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.student-name {
-    color: #f5f5f5;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #008080;
+    object-fit: cover;
+    background-color: #f0f0f0;
 }
 
 .student-info {
-    color: #cccccc;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.team-header {
-    background: linear-gradient(90deg, #008080, #006666);
-    color: #f5f5f5;
-    padding: 15px 25px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     text-align: center;
-    font-size: 1.2em;
+    margin-top: 5px;
+}
+
+.student-name {
+    font-size: 14px;
     font-weight: bold;
-    animation: slideInFromTop 1s ease-out forwards;
-}
-
-.statistics-card {
-    background: rgba(51, 51, 51, 0.9);
-    padding: 25px;
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: #f5f5f5;
-}
-
-/* Button Styles */
-.stButton > button {
-    background: linear-gradient(135deg, #008080, #006666);
-    color: #f5f5f5;
-    padding: 15px 30px;
-    border-radius: 10px;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    font-weight: bold;
-    width: 100%;
-}
-
-.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(135deg, #006666, #008080);
-}
-
-/* Team Summary Styles */
-.team-summary {
-    padding: 20px;
-    background: rgba(51, 51, 51, 0.9);
-    border-radius: 15px;
-    margin: 15px 0;
-    border-left: 5px solid #008080;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: #f5f5f5;
-}
-
-.team-summary h4 {
     color: #008080;
-    margin-bottom: 15px;
-    font-size: 1.2em;
 }
 
-/* Profile Image Styles */
-.profile-image {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #008080;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+.student-roll {
+    font-size: 12px;
+    color: #666;
 }
 
-.student-details {
-    flex-grow: 1;
-    padding-left: 15px;
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(1800deg); }
 }
 
-/* Header Styles */
-h1, h2, h3 {
-    color: #f5f5f5;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.spinning {
+    animation: spin 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
-
-/* Expander Styles */
-.streamlit-expanderHeader {
-    background: rgba(51, 51, 51, 0.9) !important;
-    border-radius: 10px !important;
-    color: #f5f5f5 !important;
-    padding: 10px 20px !important;
-}
-
-/* Divider Style */
-hr {
-    border-color: rgba(245, 245, 245, 0.2);
-    margin: 30px 0;
-}
-
-@keyframes popUpAndStay {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    20% {
-        transform: scale(1.2);
-    }
-    40% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.delay-1 { animation-delay: 0s; }
-.delay-2 { animation-delay: 2s; }
-.delay-3 { animation-delay: 4s; }
-.delay-4 { animation-delay: 6s; }
-.delay-5 { animation-delay: 8s; }
-
-@keyframes slideInFromTop {
-    0% {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
 </style>
 """, unsafe_allow_html=True)
 
-# Load data
-@st.cache_data
-def load_data():
-    df = pd.read_csv('studentdata.csv')
-    return df[['fullname', 'rollno', 'email']]
+# Function to create the student wheel
+def create_wheel_html(students, spinning=False):
+    """
+    Generates the HTML for the spinning wheel with student images and details.
+    """
+    n = len(students)  # Number of students in the current team
+    angle_step = 360 / max(n, 1)  # Avoid division by zero
+    wheel_items = ""
+    
+    for i, student in enumerate(students):
+        angle = i * angle_step  # Angle for positioning
+        img_b64 = get_image_base64(student['rollno'])
+        img_src = f"data:image/jpeg;base64,{img_b64}" if img_b64 else "images/default.png"
+        
+        wheel_items += f'''
+        <div class="wheel-item" style="transform: rotate({angle}deg) translate(250px) rotate(-{angle}deg);">
+            <img src="{img_src}" 
+                 class="profile-image" 
+                 onerror="this.src='images/default.png'"
+                 alt="{student['fullname']}">
+            <div class="student-info">
+                <div class="student-name">{student['fullname']}</div>
+                <div class="student-roll">Roll: {student['rollno']}</div>
+            </div>
+        </div>
+        '''
+    
+    spin_class = "spinning" if spinning else ""
+    return f'''
+    <div class="wheel-container">
+        <div class="wheel {spin_class}">{wheel_items}</div>
+    </div>
+    '''
 
-# Initialize session state
-if 'teams' not in st.session_state:
-    st.session_state.teams = []
-if 'remaining_students' not in st.session_state:
-    st.session_state.remaining_students = load_data().to_dict('records')
-if 'team_counter' not in st.session_state:
-    st.session_state.team_counter = 1
-
+# Function to generate teams
 def generate_team():
-    if len(st.session_state.remaining_students) >= 5:
-        team = random.sample(st.session_state.remaining_students, 5)
-        for student in team:
+    """
+    Selects a random set of students to form a team and removes them from the remaining list.
+    """
+    team_size = 5
+    total_students = len(st.session_state.remaining_students)
+    
+    if total_students < team_size:
+        return []
+        
+    # Handle last team if students aren't perfectly divisible
+    if total_students >= team_size:
+        selected_students = random.sample(st.session_state.remaining_students, team_size)
+        for student in selected_students:
             st.session_state.remaining_students.remove(student)
-        # Insert new team at the beginning of the list
+        
         st.session_state.teams.insert(0, {
             'team_number': st.session_state.team_counter,
-            'members': team,
-            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            'members': selected_students
         })
         st.session_state.team_counter += 1
-        return True
-    return False
+        return selected_students
+    return []
 
-# Add this function near the top of your file
-def get_image_path(rollno):
-    image_path = f"images/{rollno}.jpg"
-    default_image_path = "images/default.png"
-    
-    if os.path.exists(image_path):
-        return image_path
-    return default_image_path
-
-# Main app
-st.markdown("""
-<div style='text-align: center; padding: 40px 0;'>
-    <h1 style='color: #f5f5f5; font-size: 3em; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);'>
-        🎲 Random Team Generator
-    </h1>
-    <h3 style='color: #cccccc; font-weight: normal; margin-bottom: 30px;'>
-        BCA First Semester - Roadmap 2.0
-    </h3>
-</div>
-""", unsafe_allow_html=True)
-
+# UI Layout
+st.title("🎲 Random Team Generator")
 col1, col2 = st.columns([2, 1])
 
-# Modified team display section
 with col1:
-    if st.button("Generate New Team", key="generate", use_container_width=True):
-        if generate_team():
+    total_remaining = len(st.session_state.remaining_students)
+    teams_possible = total_remaining // 5
+    
+    if st.button(f"Spin the Wheel & Generate Team ({teams_possible} teams possible)", 
+                 use_container_width=True, 
+                 disabled=teams_possible == 0):
+        selected_students = generate_team()
+        if selected_students:
+            st.markdown(create_wheel_html(selected_students, spinning=True), unsafe_allow_html=True)
+            time.sleep(5)  # Increased spin time to 5 seconds
             st.success(f"Team {st.session_state.team_counter-1} generated successfully!")
         else:
             st.error("Not enough students remaining to form a complete team!")
 
-    # Display teams with enhanced styling
-    for team in st.session_state.teams:
-        with st.expander(f"Team {team['team_number']} | Generated at {team['timestamp']}", expanded=True):
-            st.markdown(f"""<div class="team-header">Team {team['team_number']}</div>""", unsafe_allow_html=True)
-            for member in team['members']:
-                image_path = get_image_path(member['rollno'])
-                try:
-                    image = Image.open(image_path)
-                    st.markdown(f"""
-                    <div class="team-card">
-                        <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 50%; border: 3px solid #FF9933;">
-                            <img src="data:image/jpg;base64,{base64.b64encode(open(image_path, 'rb').read()).decode()}" 
-                                 class="profile-image" alt="Profile photo">
-                        </div>
-                        <div class="student-details">
-                            <div class="student-name">📌 {member['fullname']}</div>
-                            <div class="student-info">
-                                🎯 Roll No: {member['rollno']}<br>
-                                📧 {member['email']}
-                            </div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                except Exception as e:
-                    st.error(f"Error loading image for roll no {member['rollno']}: {str(e)}")
-
-# Modified statistics section
 with col2:
-    st.markdown("""<div class="statistics-card">""", unsafe_allow_html=True)
-    st.subheader("📊 Statistics")
-    st.write(f"📑 Total Teams: {len(st.session_state.teams)}")
-    st.write(f"👥 Remaining Students: {len(st.session_state.remaining_students)}")
-    st.markdown("""</div>""", unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("💾 Save Teams", key="save"):
-        with open('teams.json', 'w') as f:
-            json.dump(st.session_state.teams, f, indent=4)
-        st.success("Teams saved successfully!")
-    
-    if st.button("🔄 Reset All", key="reset"):
-        st.session_state.teams = []
-        st.session_state.remaining_students = load_data().to_dict('records')
-        st.session_state.team_counter = 1
-        st.experimental_rerun()
+    st.info(f"""
+    📊 Statistics:
+    - Total Teams Formed: {len(st.session_state.teams)}
+    - Students Remaining: {total_remaining}
+    - Teams Possible: {teams_possible}
+    """)
 
-# Team Summary Section
-st.markdown("---")
-st.subheader("🎯 Team Summary")
-col3, col4 = st.columns([1, 1])
+# Display Teams
+for team in st.session_state.teams:
+    with st.expander(f"Team {team['team_number']}"):
+        for member in team['members']:
+            st.write(f"📌 {member['fullname']} - Roll No: {member['rollno']}")
 
-with col3:
-    for i in range(1, 7):
-        team_members = [team for team in st.session_state.teams if team['team_number'] == i]
-        if team_members:
-            st.markdown(f"""
-            <div class="team-summary">
-                <h4>Team {i}</h4>
-                {"<br>".join([f"• {member['fullname']} (Roll: {member['rollno']})" for member in team_members[0]['members']])}
-            </div>
-            """, unsafe_allow_html=True)
-
-with col4:
-    for i in range(7, 14):
-        team_members = [team for team in st.session_state.teams if team['team_number'] == i]
-        if team_members:
-            st.markdown(f"""
-            <div class="team-summary">
-                <h4>Team {i}</h4>
-                {"<br>".join([f"• {member['fullname']} (Roll: {member['rollno']})" for member in team_members[0]['members']])}
-            </div>
-            """, unsafe_allow_html=True)
-
-# Display remaining students with enhanced styling
+# Remaining students
 if st.session_state.remaining_students:
-    st.markdown("---")
     with st.expander("📋 Remaining Students"):
         for student in st.session_state.remaining_students:
-            st.markdown(f"""
-            <div class="team-card">
-                <div class="student-name">{student['fullname']}</div>
-                <div class="student-info">Roll No: {student['rollno']}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.write(f"{student['fullname']} (Roll: {student['rollno']})")
