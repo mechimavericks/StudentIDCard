@@ -138,7 +138,7 @@ const TeamMembers = () => {
                           transition={{ delay: index * 2, duration: 0.5 }} // 2-second delay for each name
                           className="mb-2"
                         >
-                          {member.name}
+                          {member.name} - {member.photo.split(".")[0]}
                         </motion.li>
                       ))}
                     </ol>
