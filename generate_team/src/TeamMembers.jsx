@@ -107,7 +107,7 @@ const TeamMembers = () => {
                       key={index}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: index * 0.3, duration: 0.5 }} // 0.3-second delay for each photo
                       className="flex justify-center"
                     >
                       <img
@@ -135,7 +135,7 @@ const TeamMembers = () => {
                           key={index}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
+                          transition={{ delay: index * 0.3, duration: 0.5 }} // 0.3-second delay for each name
                           className="mb-2"
                         >
                           {member.name} - {member.photo.split(".")[0]}
