@@ -134,7 +134,7 @@ def create_wheel_html(students, spinning=False):
     for i, student in enumerate(students):
         angle = i * angle_step  # Angle for positioning
         img_b64 = get_image_base64(student['rollno'])
-        img_src = f"data:image/jpeg;base64,{img_b64}" if img_b64 else "images/default.png"
+        img_src = f"data:image/jpg;base64,{img_b64}" if img_b64 else "images/default.png"
         
         wheel_items += f'''
         <div class="wheel-item" style="transform: rotate({angle}deg) translate(250px) rotate(-{angle}deg);">

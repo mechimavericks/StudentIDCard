@@ -12,7 +12,7 @@ const Home = () => {
       </div>
 
       <h2 className="text-6xl text-white font-bold text-center ">
-        TRESSURE HUNT 2.0
+        TREASURE HUNT 2.0
       </h2>
       <Link to="/team">
         <button className=" bg-white text-black hover:bg-gray-200 py-4 px-10 rounded-full text-5xl  font-bold cursor-pointer">
