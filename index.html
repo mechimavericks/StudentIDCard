@@ -245,7 +245,7 @@
         // Fetch and render data using async/await for better readability
         async function loadData() {
             try {
-                const response = await fetch("https://qrcodescanner-b98i.onrender.com/get-data/" + id);
+                const response = await fetch("<URL OF THE SERVER>" + id);
                 if (response.status !== 200) {
                     window.location.href = "404.html";
                     return;  // Ensure no further execution
