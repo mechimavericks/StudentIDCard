@@ -29,7 +29,7 @@ const Home = () => {
       </div>
 
       <h2 className="text-6xl text-white font-bold text-center ">
-        TRESSURE HUNT 2.0
+        TREASURE HUNT 2.0
       </h2>
 
       <button
